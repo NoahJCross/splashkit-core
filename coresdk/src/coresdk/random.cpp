@@ -10,6 +10,9 @@
 #include "random.h"
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
+#include <easylogging++.h>
+
 namespace splashkit_lib
 {
     static bool _do_seed = true;
