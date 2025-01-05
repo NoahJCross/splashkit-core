@@ -19,7 +19,7 @@ namespace splashkit_lib
         return rnd(RAND_MAX) / static_cast<float>(RAND_MAX);
     }
 
-     int rnd(int ubound)
+    int rnd(int ubound)
     {
         if (ubound <= 0) return 0;
         
@@ -36,6 +36,7 @@ namespace splashkit_lib
     {
         if (min > max)
         {
+            LOG(WARNING) << "Min value is greater than max value when calling rnd.";
             return rnd(max, min);
         }
 

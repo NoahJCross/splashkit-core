@@ -1,115 +1,191 @@
-//
-//  graphics_driver.h
-//  sgsdl2
-//
-//  Created by Andrew Cain on 20/11/2013.
-//  Copyright (c) 2013 Andrew Cain. All rights reserved.
-//
+/**
+ * @header  graphics
+ * @author  Andrew Cain
+ * @attribute group graphics
+ */
 
-#ifndef graphics_driver_h
-#define graphics_driver_h
+#ifndef graphics_hpp
+#define graphics_hpp
 
-#ifdef __linux__
-#include <SDL2/SDL.h>
-#else
-#include <SDL.h>
-#endif
+#include "drawing_options.h"
 
-#include "backend_types.h"
+#include "circle_drawing.h"
+#include "rectangle_drawing.h"
+#include "triangle_drawing.h"
+#include "point_drawing.h"
+#include "ellipse_drawing.h"
+#include "line_drawing.h"
+#include "clipping.h"
+
 namespace splashkit_lib
 {
-    typedef unsigned int uint;
+    //---------------------------------------------------------------------------------------------------------
+    // Screen management...
+    //---------------------------------------------------------------------------------------------------------
 
-    struct sk_window_be
-    {
-        SDL_Window *    window;
-        SDL_Renderer *  renderer;
-        SDL_Texture *   backing;
-        bool            clipped;
-        SDL_Rect        clip;
-        unsigned int    idx;
+    /**
+     * Refreshes the current drawing on all open windows. This must be
+     * called to display anything to the screen. This will show all drawing
+     * operations, as well as any text being entered by the user.
+     *
+     * This will add in delays to limit the framerate to around 60 frames per
+     * second.
+     *
+     * The current drawing is shown on the screen as a result.
+     *
+     * @brief Refreshes the current drawing on all open windows.
+     */
+    void refresh_screen();
 
-        // Event data store
-        sk_window_data  event_data;
-        sk_drawing_surface *surface;
-    };
+    /**
+     * Refreshes all open windows with a target FPS (frames per second). This will
+     * delay a period of time that will approximately meet the targeted frames per
+     * second.
+     *
+     * @param target_fps The targeted frames per second to refresh the screen at.
+     *
+     * @attribute suffix  with_target_fps
+     */
+    void refresh_screen(unsigned int target_fps);
 
-    struct sk_bitmap_be
-    {
-        // 1 texture per open window
-        SDL_Texture **  texture;
-        SDL_Surface *   surface;
-        bool            clipped;
-        SDL_Rect        clip;
+    /**
+     * When called, all open windows will have their contents removed and will be
+     * redrawn with a background color set to the `clr` that was provided.
+     *
+     * You can use this to make a solid background color on all windows opened
+     * on the screen and wipe all their previous drawings away.
+     *
+     * @brief Clears all open windows to the `clr` provided.
+     *
+     * @param clr The color to clear the screen's background color to.
+     */
+    void clear_screen(color clr);
 
-        bool            drawable; // can be drawn on
-    };
+    /**
+     * Clears the current screen to color white.
+     *
+     * @attribute suffix  to_white
+     */
+    void clear_screen();
 
-    sk_drawing_surface sk_open_window(const char *title, int width, int height);
+    /**
+     * Returns the width of the current window.
+     *
+     * @return The width of the current window.
+     */
+    int screen_width();
 
-    sk_drawing_surface sk_create_bitmap(int width, int height);
+    /**
+     * Returns the height of the current window.
+     *
+     * @return The height of the current window.
+     */
+    int screen_height();
 
-    sk_drawing_surface sk_load_bitmap(const char * filename);
+    /**
+     *  Saves a screenshot of the current window to a bitmap file. The file will
+     *  be saved onto the user's desktop.
+     *
+     * @param basename The base of the filename. If there is a file of this name
+     *                 already, then the name will be changed to generate a
+     *                 unique filename.
+     */
+    void take_screenshot(const string &basename);
 
+    /**
+     *  Saves a screenshot of the current window to a bitmap file. The file will
+     *  be saved onto the user's desktop.
+     *
+     * @param wind     The window to capture in the screenshot
+     * @param basename The base of the filename. If there is a file of this name
+     *                 already, then the name will be changed to generate a
+     *                 unique filename.
+     *
+     * @attribute suffix  of_window
+     */
+    void take_screenshot(window wind, const string &basename);
 
-    void sk_draw_bitmap( sk_drawing_surface * src, sk_drawing_surface * dst, double * src_data, int src_data_sz, double * dst_data, int dst_data_sz, sk_renderer_flip flip );
+    /**
+     * Save the bitmap to the user's desktop.
+     *
+     * @param bmp      The bitmap to save
+     * @param basename The base of the filename. If there is a file of this name
+     *                 already, then the name will be changed to generate a
+     *                 unique filename.
+     */
+    void save_bitmap(bitmap bmp, const string &basename);
 
-    void sk_set_icon(sk_drawing_surface *surface, sk_drawing_surface *icon);
+    /**
+     * Returns the number of physical displays attached to the computer.
+     *
+     * @return The number of displays attached to the computer
+     */
+    int number_of_displays();
 
+    /**
+     * Returns the details about one of the displays attached to the computer.
+     *
+     * @param  index The display number (from 0 to `number_of_displays` - 1)
+     * @return       The details of this display
+     */
+    display display_details(unsigned int index);
 
-    void sk_close_drawing_surface(sk_drawing_surface *surface);
+    /**
+     * Return the name of the display, read from the system details.
+     *
+     * @param  disp The display details
+     * @return      The name of the display
+     *
+     * @attribute class display
+     * @attribute getter name
+     */
+    string display_name(display disp);
 
-    void sk_clear_drawing_surface(sk_drawing_surface *surface, sk_color clr);
-    void sk_refresh_window(sk_drawing_surface *window);
+    /**
+     * Return the width of the display in pixels, read from the system details.
+     *
+     * @param  disp The display details
+     * @return      The width of the display
+     *
+     * @attribute class display
+     * @attribute getter width
+     */
+    int display_width(display disp);
 
-    void sk_draw_aa_rect(sk_drawing_surface *surface, sk_color clr, double x, double y, double width, double height);
-    void sk_fill_aa_rect(sk_drawing_surface *surface, sk_color clr, double x, double y, double width, double height);
-    void sk_draw_rect(sk_drawing_surface *surface, sk_color clr, double *data, int data_sz);
-    void sk_fill_rect(sk_drawing_surface *surface, sk_color clr, double *data, int data_sz);
+    /**
+     * Return the height of the display in pixels, read from the system details.
+     *
+     * @param  disp The display details
+     * @return      The height of the display
+     *
+     * @attribute class display
+     * @attribute getter height
+     */
+    int display_height(display disp);
 
-    void sk_draw_blurred_rect(sk_drawing_surface *surface, sk_color clr, double x, double y, double width, double height, int blur_radius);
+    /**
+     * Return a relative x location for the display in pixels, read from the
+     * system details. This can be used to work out the arrangement of displays.
+     *
+     * @param  disp The display details
+     * @return      The x location of the display
+     *
+     * @attribute class display
+     * @attribute getter x
+     */
+    int display_x(display disp);
 
-    void sk_draw_triangle(sk_drawing_surface *surface, sk_color clr, double x1, double y1, double x2, double y2, double x3, double y3);
-    void sk_fill_triangle(sk_drawing_surface *surface, color clr, double x1, double y1, double x2, double y2, double x3, double y3);
+    /**
+     * Return a relative y location for the display in pixels, read from the
+     * system details. This can be used to work out the arrangement of displays.
+     *
+     * @param  disp The display details
+     * @return      The y location of the display
+     *
+     * @attribute class display
+     * @attribute getter y
+     */
+    int display_y(display disp);
 
-    void sk_draw_ellipse(sk_drawing_surface *surface, sk_color clr, double x, double y, double width, double height);
-    void sk_fill_ellipse(sk_drawing_surface *surface, sk_color clr, double x, double y, double width, double height);
-    void sk_draw_pixel(sk_drawing_surface *surface, sk_color clr, double x, double y);
-    sk_color sk_read_pixel(sk_drawing_surface *surface, int x, int y);
-
-    void sk_set_bitmap_pixel(sk_drawing_surface *surface, sk_color clr, int x, int y);
-    void sk_refresh_bitmap(sk_drawing_surface *surface);
-
-    void sk_set_bitmap_tint(sk_drawing_surface *surface, sk_color clr);
-
-    void sk_draw_circle(sk_drawing_surface *surface, sk_color clr, double x, double y, double radius);
-    void sk_fill_circle(sk_drawing_surface *surface, sk_color clr, double x, double y, double radius);
-
-    void sk_draw_line(sk_drawing_surface *surface, sk_color clr, double x1, double y1, double x2, double y2, double size);
-
-    void sk_set_clip_rect(sk_drawing_surface *surface, double x, double y, double width, double height);
-    void sk_clear_clip_rect(sk_drawing_surface *surface);
-
-    void sk_to_pixels(sk_drawing_surface *surface, int *pixels, int sz);
-
-    void sk_show_border(sk_drawing_surface *surface, bool border);
-
-    void sk_show_fullscreen(sk_drawing_surface *surface, bool fullscreen);
-
-    void sk_resize(sk_drawing_surface *surface, int width, int height);
-
-    int sk_save_png(sk_drawing_surface * surface, const char *filename);
-
-    struct sk_window_be;
-
-    sk_window_be *_sk_get_window_with_id(unsigned int window_id);
-    sk_window_be *_sk_get_window_with_pointer(pointer p);
-    void _sk_destroy_initial_window();
-    
-    
-    unsigned int _sk_renderer_count(sk_drawing_surface *surface);
-    SDL_Renderer * _sk_prepared_renderer(sk_drawing_surface *surface, unsigned int idx);
-    void _sk_complete_render(sk_drawing_surface *surface, unsigned int idx);
 }
-
-#endif /* defined(graphics_driver) */
+#endif /* graphics_hpp */
