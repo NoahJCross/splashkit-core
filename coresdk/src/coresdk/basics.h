@@ -125,7 +125,7 @@ namespace splashkit_lib
      * @param newText   The string to replace the substring with
      * @returns         The text with all occurrences of the substring replaced with the new text.
      */
-    string replace_all(const string &text, const string &substr, const string &newText);
+    string replace_all(const string &text, const string &substr, const string &replacement);
 
     /**
      * Split a string into an array of strings based on a delimiter.
