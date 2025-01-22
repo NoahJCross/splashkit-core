@@ -118,7 +118,11 @@ namespace splashkit_lib
 
         if ( img.clip_stack.size() > 0 )
         {
+<<<<<<< HEAD
             rectangle clip_rect = img.clip_stack.back();
+=======
+            rectangle clip_rect = *img.clip_stack.back();
+>>>>>>> bugfix/general-fixes
             sk_set_clip_rect(&img.surface, clip_rect.x, clip_rect.y, clip_rect.width, clip_rect.height);
         }
         else
@@ -157,7 +161,11 @@ namespace splashkit_lib
     rectangle _current_clip(const image_data &img)
     {
         if (img.clip_stack.size() > 0)
+<<<<<<< HEAD
             return img.clip_stack.back();
+=======
+            return *img.clip_stack.back();
+>>>>>>> bugfix/general-fixes
         else
             return rectangle_from(0, 0, img.surface.width, img.surface.height);
     }
