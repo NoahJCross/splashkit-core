@@ -124,11 +124,6 @@ namespace splashkit_lib
             LOG(WARNING) << "Ending reading text with invalid window";
             return;
         }
-<<<<<<< HEAD
-        sk_end_reading_text();
-        wind->reading_text = false;
-=======
         _stop_reading_text(wind);
->>>>>>> bugfix/input-handling
     }
 }
