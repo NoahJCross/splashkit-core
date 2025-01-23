@@ -104,11 +104,11 @@ tools/scripts/test/obj
 **/splashkit-test-generator/**/TestResults
 **/splashkit-test-generator/**/.pytest_cache
 **/splashkit-test-generator/**/target
-**/splashkit-test-generator/**/tests
 **/splashkit-test-generator/**/build
 **/splashkit-test-generator/**/*.dylib
 **/splashkit-test-generator/**/*.dll
 **/splashkit-test-generator/**/*.so
+**/generated_tests/**/tests
 
 # Generated test files
 **/splashkit-test-generator/**/test
